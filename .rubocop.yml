@@ -1,0 +1,21 @@
+inherit_from: ".rubocop_todo.yml"
+
+AllCops:
+  TargetRubyVersion: 2.4
+
+Lint/AmbiguousRegexpLiteral:
+  Exclude:
+    - 'lib/common.rb'
+    - 'lib/pinklestia.rb'
+    - 'lib/spike.rb'
+    - 'lib/test.rb'
+
+Metrics/LineLength:
+  Max: 300
+
+Style/NegatedIf:
+  Enabled: false
+
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+  EnforcedStyle: slashes
