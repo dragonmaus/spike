@@ -1,0 +1,25 @@
+{
+  "afternoon": [
+    "Good afternoon",
+    "Добрый день"
+  ],
+  "evening": [
+    "Good evening",
+    "Guten Abend",
+    "Добрый вечер"
+  ],
+  "general": [
+    "Greetings",
+    "Guten Tag",
+    "Hallo",
+    "Hello",
+    "Hi",
+    "Здравствуйте",
+    "Привет"
+  ],
+  "morning": [
+    "Good morning",
+    "Guten Morgen",
+    "Доброе утро"
+  ]
+}

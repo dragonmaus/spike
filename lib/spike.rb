@@ -11,6 +11,8 @@ require 'secret'
 class Spike
   include Cinch::Plugin
 
+  GREETINGS = JSON.parse File.read(File.expand_path('data/greetings.json', __dir__))
+
   listen_to :connect, method: :boot
   listen_to :online, method: :deliver
 
@@ -19,6 +21,7 @@ class Spike
   match /b(?:ing)?(\s.*)?\z/i, method: :bing
   match /cdj(?:ack)?(?:\s+(\d+)\s+(\d+))?\z/i, method: :jack
   match /d(?:dg|uckduckgo)?(\s.*)?\z/i, method: :duckduckgo
+  match /\A(?:greetings|hello|hi),?\s(.*)\z/i, method: :greetings, use_prefix: false
   # match /dear\s+(\S+?)(#\S+?)?,?\s+(\S.*)\z/, method: :mail
   match /dict(?:ionary)?(?:\s(.*))?\z/i, method: :dictionary
   match /g(?:oogle)?(\s.*)?\z/i, method: :google
@@ -166,6 +169,33 @@ class Spike
     m.reply uri if uri.to_s != old_uri
   end
 
+  def greetings(m, nicks)
+    return if !mentioned_in? nicks
+
+    now = Time.now.utc.round
+
+    # completely arbitrary
+    morn = Time.mktime(now.year, now.month, now.day, 6, 0, 0)
+    noon = Time.mktime(now.year, now.month, now.day, 12, 0, 0)
+    even = Time.mktime(now.year, now.month, now.day, 18, 0, 0)
+    night = Time.mktime(now.year, now.month, now.day, 20, 0, 0)
+
+    greetings = []
+    greetings += GREETINGS['general']
+    if now >= morn && now < noon
+      greetings += GREETINGS['morning']
+    elsif now > noon && now < even
+      greetings += GREETINGS['afternoon']
+    elsif now >= even && now < night
+      greetings += GREETINGS['evening']
+    end
+
+    response = ['', ', ' + m.user.name]
+    punctuation = ['.', '!']
+
+    m.reply greetings.sample + response.sample + punctuation.sample
+  end
+
   def jack(m, season, episode)
     now = Time.now.utc.round
 
@@ -293,5 +323,14 @@ class Spike
 
     distance = "#{pluralise(weeks, 'week')}, #{pluralise(days, 'day')}, #{pluralise(hours, 'hour')}, #{pluralise(minutes, 'minute')}, and #{pluralise(seconds, 'second')}"
     from < to ? "in #{distance}" : "#{distance} ago"
+  end
+
+  def mentioned_in?(nicks)
+    nicks.downcase
+         .tr(',', ' ')
+         .gsub(/\s+/, ' ')
+         .strip
+         .split(' ')
+         .include? bot.nick.downcase
   end
 end
