@@ -11,4 +11,6 @@ module Config
   @password = Secret::Spike::PASSWORD
   @realname = 'Spike the Dragon'
   @username = 'spike'
+
+  @channels = (@channels + %w[#derpibooru-pol]).sort
 end
