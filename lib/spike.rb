@@ -22,7 +22,7 @@ class Spike
   match /cdj(?:ack)?(?:\s+(\d+)\s+(\d+))?\z/i, method: :jack
   match /d(?:dg|uckduckgo)?(\s.*)?\z/i, method: :duckduckgo
   match /\A(?:greetings|hello|hi),?\s(.*)\z/i, method: :greetings, use_prefix: false
-  # match /dear\s+(\S+?)(#\S+?)?,?\s+(\S.*)\z/, method: :mail
+  # match /dear\s+(\S+?),?\s+(\S.*)\z/, method: :mail
   match /dict(?:ionary)?(?:\s(.*))?\z/i, method: :dictionary
   match /g(?:oogle)?(\s.*)?\z/i, method: :google
   # match /ping([a-z]*)/i, method: :ping
@@ -46,7 +46,6 @@ class Spike
   end
 
   def deliver(_m, user)
-    return
     return if @mail.blank?
 
     mail = @mail.data
@@ -229,29 +228,23 @@ class Spike
     m.reply "Episode #{episode} of season #{season} \"#{title}\" #{now > airdate ? 'aired' : 'airs'} #{time_distance(now, airdate)} (#{airdate.strftime('%b %d %T %Y %z %Z')})"
   end
 
-  def mail(m, nick, channel, message)
-    return m.action_reply 'is out sick.'
+  def mail(m, nick, message)
     return if Config.ignore? m.user
 
     return m.reply "I'm right here, you know…" if User(nick) == bot
-
-    channel = channel.blank? ? m.channel : Channel(channel)
-
-    return m.reply 'Please either send from a channel, or include "#channel" in your message (e.g. "!dear Princess_Celestia#derpibooru, Hi!")' if channel.blank?
-    return m.reply "I ain't sending that to #{nick}, do it yourself!" if channel.users.include? User(nick)
 
     @mail ||= Cache.new 'mail'
 
     mail = @mail.data
     target = mail[nick] || {}
-    route = target[channel.to_s] || {}
+    channel = target[m.channel.to_s] || {}
     source = route[m.user.nick] || {}
 
     source['message'] = message
     source['stamp'] = m.time.to_i
 
-    route[m.user.nick] = source.sort.to_h
-    target[channel.to_s] = route.sort.to_h
+    channel[m.user.nick] = source.sort.to_h
+    target[m.channel.to_s] = channel.sort.to_h
     mail[nick] = target.sort.to_h
     @mail.data = mail.sort.to_h
 
