@@ -27,7 +27,7 @@ class Spike
   match /g(?:oogle)?(\s.*)?\z/i, method: :google
   # match /ping([a-z]*)/i, method: :ping
   # match /rimshot/i, method: :rimshot
-  match /\A(\s*A+[[:blank:][:punct:]]*)\z/, method: :scream, use_prefix: false
+  match /\A([^[:alpha:]]*[[:blank:][:upper:]]+[^[:alpha:]]*)\z/, method: :scream, use_prefix: false
   # match /trigger(?:ed)?/i, method: :triggered
 
   def bing(m, query)
@@ -276,7 +276,7 @@ class Spike
   def scream(m, shout)
     return if m.user.authname != 'RepentantAnon'
 
-    m.reply shout.gsub(/A/, 'B')
+    m.reply shout.tr('A-Z', 'B-ZA')
   end
 
   def triggered(m)
