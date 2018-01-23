@@ -275,6 +275,7 @@ class Spike
 
   def scream(m, shout)
     return if m.user.authname != 'RepentantAnon'
+    return if rand(8) > 0
 
     m.reply shout.tr('A-Z', 'B-ZA')
   end
